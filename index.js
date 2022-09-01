@@ -2,12 +2,12 @@ import http from "http";
 import { toDosHandler } from "./requestHandler.js";
 
 const host = 'localhost';
-const port = 5000;
+const port = 4000;
 
 const server = async function (req, res) {
     res.setHeader("Content-Type", "application/json")
-    if (req.url?.startsWith("/todos")) {
-        const t = "/todos";
+    const t = "/API/v1/todos"
+    if (req.url?.startsWith(t)) {
         req.url = req.url.slice(t.length);
         await toDosHandler(req,res);
     } else {

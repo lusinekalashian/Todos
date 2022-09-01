@@ -52,6 +52,37 @@ export async function createTodosInDB(todo) {
 
 }
 
+export async function deleteTodoById(id){
+    try {
+        let file = await fs.readFile(configs.path, configs.options);
+        const data = JSON.parse(file);
+        const todos = data.todos.filter(todo => todo.id !== id);
+        await fs.writeFile(configs.path, JSON.stringify({
+            todos,
+            nextTodoId: data.nextTodoId
+        }));
+    }
+    catch (err){
+        return console.log(err);
+    }
+}
+
+export async function updateById(id, updatedData){
+    let file = await fs.readFile(configs.path, configs.options);
+    const data = JSON.parse(file);
+    data.todos = data.todos.map((todo) => {
+        if (todo.id === id){
+            return {
+                ...todo,
+                ...updatedData,
+            }
+        } else {
+            return todo;
+        }
+    })
+    await fs.writeFile(configs.path, JSON.stringify(data));
+}
+
 
 
 
