@@ -43,8 +43,7 @@ export async function postRequest(req,res){
 }
 
 export async function deleteRequest(req,res){
-    const id = Number(url.parse(req.url, true).query.id);
-    await deleteTodoById(id);
+    await deleteTodoById(Number(url.parse(req.url, true).query.id));
     res.end(JSON.stringify({
         code: 200,
         message: 'Success',
@@ -86,7 +85,7 @@ export async function toDosHandler(req,res) {
         }
 
         case "PUT" : {
-            await deleteRequest(req,res);
+            await putRequest(req,res);
             break;
 
         }

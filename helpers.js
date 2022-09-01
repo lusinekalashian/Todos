@@ -24,22 +24,7 @@ export async function getTodoByIDFromDB(id) {
     return res.todos.find(todo => todo.id === id);
 }
 
-export async function createTodosInDB(todo) {
-    const {title, isCompleted} = todo;
-
-    const file = await fs.readFile(configs.path, configs.options);
-    const data = JSON.parse(file);
-    const {todos} = data;
-    let {nextTodoId} = data;
-
-    todos.push({
-        id: nextTodoId,
-        title,
-        isCompleted,
-    });
-
-    nextTodoId++;
-
+export async function writeDataInFile(todos,nextTodoId){
     await fs.writeFile(
         configs.path,
         JSON.stringify(
@@ -49,18 +34,27 @@ export async function createTodosInDB(todo) {
             }),
         configs.options
     )
-
 }
+
+export async function createTodosInDB(todo) {
+    const {title, isCompleted} = todo;
+    let {todos, nextTodoId} = JSON.parse(await fs.readFile(configs.path, configs.options));
+
+    todos.push({
+        id: nextTodoId++,
+        title,
+        isCompleted,
+    });
+    await writeDataInFile(todos,nextTodoId);
+}
+
+
 
 export async function deleteTodoById(id){
     try {
-        let file = await fs.readFile(configs.path, configs.options);
-        const data = JSON.parse(file);
+        const data = JSON.parse(await fs.readFile(configs.path, configs.options));
         const todos = data.todos.filter(todo => todo.id !== id);
-        await fs.writeFile(configs.path, JSON.stringify({
-            todos,
-            nextTodoId: data.nextTodoId
-        }));
+        await writeDataInFile(todos,data.nextTodoId);
     }
     catch (err){
         return console.log(err);
@@ -68,8 +62,8 @@ export async function deleteTodoById(id){
 }
 
 export async function updateById(id, updatedData){
-    let file = await fs.readFile(configs.path, configs.options);
-    const data = JSON.parse(file);
+    const data = JSON.parse(await fs.readFile(configs.path, configs.options));
+
     data.todos = data.todos.map((todo) => {
         if (todo.id === id){
             return {
